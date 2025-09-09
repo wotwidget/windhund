@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>OBZ • Прогрес місій — DRAVEC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#000; --text:#fff; --muted:#cfcfcf;
+      --stroke:#cfcfcf; --accent:#ff9e00; --track:#3a3a3a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text); background:var(--bg);
+      font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      padding:18px;
+    }
+
+    .wrap{width:380px; margin:0 auto}
+
+    .header{
+      position:relative;
+      display:flex; align-items:flex-end; justify-content:space-between;
+      min-height:120px;
+      margin-bottom:2px;
+    }
+    .title{
+      margin-left:22px;
+      font-family:'Bebas Neue', sans-serif;
+      font-size:58px; line-height:.9; letter-spacing:1px;
+      z-index:1;
+    }
+    .tank{
+      position:absolute;
+      right:20px;
+      top:0px;
+      width:200px;
+      pointer-events:none;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.6));
+      z-index:2;
+    }
+
+    .grid{
+      display:grid;
+      gap:4px;
+      grid-template-columns:repeat(3, 120px);
+      margin-bottom:14px;
+      justify-content:center;
+    }
+
+    .card{
+      position:relative;
+      background:rgba(0,0,0,0.6);
+      border:2px solid var(--stroke); border-radius:14px;
+      padding:10px 10px;
+      width:120px;
+      height:250px;
+      display:flex; flex-direction:column; justify-content:space-between;
+      overflow:hidden;
+    }
+    .card .head{
+      font-weight:800; font-size:16px; margin-bottom:8px;
+      text-align:center;
+    }
+
+    .details{font-size:11px; line-height:1.24; color:#ccc; margin-bottom:6px;}
+    .gold-text{color:#ffcc00; font-weight:600;}
+
+    .checks{
+      display:flex;
+      gap:14px;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+      margin:2px 0 4px;
+    }
+    .tick{
+      font-size:26px;
+      line-height:1;
+      opacity:.55;
+      color:#9b9b9b;
+      text-shadow:none;
+    }
+    .tick.on{
+      color:#7CFF2B; opacity:1;
+      text-shadow:0 0 6px rgba(124,255,43,.55), 0 0 10px rgba(124,255,43,.35);
+    }
+
+    .reading{
+      display:flex; align-items:flex-end; justify-content:flex-end;
+      gap:6px; line-height:1; margin-top:2px; width:100%;
+    }
+    .reading .num{font-family:'Bebas Neue', sans-serif; font-size:48px}
+    .reading .den{font-size:22px; color:#e6e6e6}
+
+    .bar{height:8px; width:100%; border-radius:999px; background:var(--track); overflow:hidden; margin-top:8px;}
+    .bar>span{display:block; height:100%; width:0%; background:var(--accent); transition:width .6s ease}
+    .bar.total>span{background:#0fa8ab;}
+
+    /* ===== СТАТУС "ВИКОНАНО" ===== */
+    .card.done{
+      border-color:#0d7529;
+      background-image: repeating-linear-gradient(45deg,
+        rgba(124,255,43,0.12) 0px, rgba(124,255,43,0.12) 10px,
+        rgba(124,255,43,0.02) 10px, rgba(124,255,43,0.02) 20px);
+    }
+    .card.done::after{
+      content:"Виконано";
+      position:absolute; top:35%; left:50%;
+      transform:translate(-50%,-50%) rotate(-45deg);
+      padding:6px 20px;
+      background:rgba(124,255,43,.18);
+      border:2px solid rgba(124,255,43,.6);
+      color:#baff7d; font-weight:800; letter-spacing:.5px; font-size:14px;
+      text-shadow:0 0 6px rgba(124,255,43,.35);
+      border-radius:12px;
+      pointer-events:none;
+      white-space:nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title" id="title">WINDHUND</div>
+      <img class="tank" src="windhund.png" alt="DRAVEC">
+    </div>
+
+    <div class="grid">
+      <!-- Авангард -->
+      <div class="card" id="card-avg">
+        <div>
+          <div class="head">Авангард</div>
+          <div class="details">
+            Важкий танк<br>Середній танк<br>ПТ-САУ<br><br>
+            <span class="gold-text">Прорив</span><br>
+            <span class="gold-text">Штурмовий</span><br>
+            <span class="gold-text">Універсальний</span>
+          </div>
+        </div>
+        <div>
+          <div class="checks">
+            <span id="avg-c1" class="tick">✔</span>
+            <span id="avg-c2" class="tick">✔</span>
+          </div>
+          <div class="reading"><span id="n-avg" class="num">0</span><span class="den">/15</span></div>
+          <div class="bar"><span id="b-avg"></span></div>
+        </div>
+      </div>
+
+      <!-- Засідка -->
+      <div class="card" id="card-zas">
+        <div>
+          <div class="head">Засідка</div>
+          <div class="details">
+            Важкий танк<br>Середній танк<br>ПТ-САУ<br><br>
+            <span class="gold-text">Снайпер</span><br>
+            <span class="gold-text">Підтримка</span>
+          </div>
+        </div>
+        <div>
+          <div class="checks">
+            <span id="zas-c1" class="tick">✔</span>
+            <span id="zas-c2" class="tick">✔</span>
+          </div>
+          <div class="reading"><span id="n-zas" class="num">0</span><span class="den">/15</span></div>
+          <div class="bar"><span id="b-zas"></span></div>
+        </div>
+      </div>
+
+      <!-- Підтримка -->
+      <div class="card" id="card-pid">
+        <div>
+          <div class="head">Підтримка</div>
+          <div class="details">Легкий танк<br>САУ</div>
+        </div>
+        <div>
+          <div class="checks">
+            <span id="pid-c1" class="tick">✔</span>
+            <span id="pid-c2" class="tick">✔</span>
+          </div>
+          <div class="reading"><span id="n-pid" class="num">0</span><span class="den">/15</span></div>
+          <div class="bar"><span id="b-pid"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Підсумок -->
+    <div class="card" style="width:100%; height:96px; flex-direction:column; justify-content:space-between;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="head" style="font-size:20px; margin-bottom:0; text-align:left;">Виконано завдань</div>
+        <div class="reading"><span id="n-total" class="num">0</span><span class="den">/45</span></div>
+      </div>
+      <div class="bar total"><span id="b-total"></span></div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID   = '1WaI5VLB5CXmFHjc_Z_6It6qa_XhaFuYeKi3C1h7rl5A';
+    const SHEET_NAME = 'OBZ';
+    const CHK_ROW    = 3;
+    const MAX_CARD   = 15, MAX_TOTAL = 45, INTERVAL_MS = 15000;
+
+    const toNum = v => (typeof v==='number') ? v :
+      (Number(String(v).replace(/[^\d.,-]/g,'').replace(',','.')) || 0);
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+
+    async function fetchCell(a1){
+      const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?headers=0&tqx=out:json&range=${encodeURIComponent(SHEET_NAME+'!'+a1)}`;
+      const res=await fetch(url,{cache:'no-cache'});
+      const txt=await res.text();
+      const json=JSON.parse(txt.substring(47).slice(0,-2));
+      return json?.table?.rows?.[0]?.c?.[0]?.v ?? 0;
+    }
+
+    function setBar(numId, barId, val, max){
+      const v = toNum(val);
+      document.getElementById(numId).textContent = v;
+      document.getElementById(barId).style.width = clamp((v/max)*100,0,100) + '%';
+    }
+
+    function setChecks(id1, v1, id2, v2){
+      const e1 = document.getElementById(id1);
+      const e2 = document.getElementById(id2);
+      e1.classList.toggle('on', v1 === true);
+      e2.classList.toggle('on', v2 === true);
+      e1.title = v1 ? 'Увімкнено' : 'Вимкнено';
+      e2.title = v2 ? 'Увімкнено' : 'Вимкнено';
+    }
+
+    function markDone(cardEl, value, chk1, chk2){
+      const isDone = (toNum(value) === MAX_CARD) && (chk1 === true) && (chk2 === true);
+      cardEl.classList.toggle('done', isDone);
+    }
+
+    async function update(){
+      try{
+        const [B2, D2, F2] = await Promise.all([fetchCell('B2'), fetchCell('D2'), fetchCell('F2')]);
+        const I2 = await fetchCell('I2');
+
+        setBar('n-avg','b-avg',B2,MAX_CARD);
+        setBar('n-zas','b-zas',D2,MAX_CARD);
+        setBar('n-pid','b-pid',F2,MAX_CARD);
+        setBar('n-total','b-total',I2,MAX_TOTAL);
+
+        const [B3,C3,D3,E3,F3,G3] = await Promise.all([
+          fetchCell(`B${CHK_ROW}`), fetchCell(`C${CHK_ROW}`),
+          fetchCell(`D${CHK_ROW}`), fetchCell(`E${CHK_ROW}`),
+          fetchCell(`F${CHK_ROW}`), fetchCell(`G${CHK_ROW}`)
+        ]);
+
+        setChecks('avg-c1', B3 === true, 'avg-c2', C3 === true);
+        setChecks('zas-c1', D3 === true, 'zas-c2', E3 === true);
+        setChecks('pid-c1', F3 === true, 'pid-c2', G3 === true);
+
+        markDone(document.getElementById('card-avg'), B2, B3 === true, C3 === true);
+        markDone(document.getElementById('card-zas'), D2, D3 === true, E3 === true);
+        markDone(document.getElementById('card-pid'), F2, F3 === true, G3 === true);
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    update();
+    setInterval(update, INTERVAL_MS);
+  </script>
+</body>
+</html>
